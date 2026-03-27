@@ -4,6 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
+    "build": "prisma generate",
     "start": "prisma generate && node server.js",
     "server": "nodemon server.js"
   },
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14",
-    "prisma": "^7.5.0"
+    "prisma": "^5.22.0",
+    "tsx": "^4.21.0"
   }
 }
