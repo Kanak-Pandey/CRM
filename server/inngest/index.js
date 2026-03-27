@@ -1,34 +1,43 @@
 import { Inngest } from "inngest";
 import { prisma } from "../configs/db.js";
 
+// Create a client to send and receive events
 export const inngest = new Inngest({ id: "project-management" });
 
+// Sync User Creation
 const syncUserCreation = inngest.createFunction(
-  { id: "sync-user-from-clerk" },
-  { event: "clerk/user.created" },
+  { 
+    id: "sync-user-from-clerk",
+    // This is the correct way to define the trigger in v4
+    triggers: [{ event: "clerk/user.created" }] 
+  },
   async ({ event }) => {
     const { data } = event;
-    // Using upsert prevents "User already exists" crashes
+    const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+
     await prisma.user.upsert({
       where: { id: data.id },
       update: {
         email: data.email_addresses[0]?.email_address,
-        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+        name: fullName,
         image: data.image_url,
       },
       create: {
         id: data.id,
         email: data.email_addresses[0]?.email_address,
-        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+        name: fullName,
         image: data.image_url,
       },
     });
   }
 );
 
+// Sync User Deletion
 const syncUserDeletion = inngest.createFunction(
-  { id: "delete-user-from-clerk" },
-  { event: "clerk/user.deleted" },
+  { 
+    id: "delete-user-from-clerk",
+    triggers: [{ event: "clerk/user.deleted" }] 
+  },
   async ({ event }) => {
     const { data } = event;
     await prisma.user.delete({
@@ -37,16 +46,21 @@ const syncUserDeletion = inngest.createFunction(
   }
 );
 
+// Sync User Update
 const syncUserUpdation = inngest.createFunction(
-  { id: "update-user-from-clerk" },
-  { event: "clerk/user.updated" },
+  { 
+    id: "update-user-from-clerk",
+    triggers: [{ event: "clerk/user.updated" }] 
+  },
   async ({ event }) => {
     const { data } = event;
+    const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+
     await prisma.user.update({
       where: { id: data.id },
       data: {
         email: data.email_addresses[0]?.email_address,
-        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+        name: fullName,
         image: data.image_url,
       },
     });
