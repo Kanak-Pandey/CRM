@@ -32,6 +32,32 @@ const syncUserCreation = inngest.createFunction(
   }
 );
 
+const syncUserSession = inngest.createFunction(
+  { 
+    id: "sync-user-session-clerk", 
+    triggers: [{ event: "clerk/session.created" }] 
+  },
+  async ({ event }) => {
+    const { user } = event.data; // Clerk nests the user object inside 'data' for sessions
+    const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email_addresses[0]?.email_address,
+        name: fullName,
+        image: user.image_url,
+      },
+      create: {
+        id: user.id,
+        email: user.email_addresses[0]?.email_address,
+        name: fullName,
+        image: user.image_url,
+      },
+    });
+  }
+);
+
 // Sync User Deletion
 const syncUserDeletion = inngest.createFunction(
   { 
@@ -70,5 +96,6 @@ const syncUserUpdation = inngest.createFunction(
 export const functions = [
   syncUserCreation,
   syncUserDeletion,
-  syncUserUpdation
+  syncUserUpdation,
+  syncUserSession
 ];
