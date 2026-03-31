@@ -14,7 +14,7 @@ const syncUserCreation = inngest.createFunction(
   async ({ event }) => {
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
-
+    console.log(process.env.DATABASE_URL);
     await prisma.user.upsert({
       where: { id: data.id },
       update: {
