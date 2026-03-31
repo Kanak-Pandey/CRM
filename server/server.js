@@ -13,7 +13,7 @@ app.use(cors());
 app.use(clerkMiddleware());
 
 app.get('/',(req,res)=>{
-    res.send('Server is Live!');
+    res.send('Server is Live!REFRESH_CHECK_101');
 })
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
