@@ -1,18 +1,15 @@
+import 'dotenv/config'; // Use the self-executing import at the VERY top
 import { PrismaClient } from '@prisma/client'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { Pool } from '@neondatabase/serverless'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const connectionString = process.env.DATABASE_URL;
 
-// This check helps you debug in the Vercel logs immediately
+// This will show up in your Vercel logs if it's still missing
 if (!connectionString) {
-    throw new Error("DATABASE_URL is not defined. Check your Vercel Environment Variables.");
+    console.error("CRITICAL: DATABASE_URL is missing from process.env");
 }
 
 const pool = new Pool({ connectionString })
 const adapter = new PrismaNeon(pool)
-
 export const prisma = new PrismaClient({ adapter })
