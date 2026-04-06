@@ -3,8 +3,9 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { Pool } from '@neondatabase/serverless'
 
-const connectionString = process.env.DATABASE_URL;
-
+const connectionString =
+  process.env.DATABASE_URL ||
+  "PASTE_YOUR_NEON_POOLER_URL_HERE";
 // This will show up in your Vercel logs if it's still missing
 if (!connectionString) {
     console.error("CRITICAL: DATABASE_URL is missing from process.env");
