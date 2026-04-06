@@ -4,7 +4,7 @@ import { Pool } from "@neondatabase/serverless";
 
 // ✅ ALWAYS use env (NOT hardcoded)
 const connectionString = process.env.DATABASE_URL;
-
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 if (!connectionString) {
   throw new Error("❌ DATABASE_URL is missing in environment variables");
 }
