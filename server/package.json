@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "prisma generate",
-    "postinstall": "dotenv -e .env -- prisma generate",
+    "postinstall": "decho $DIRECT_URL && prisma generate",
     "start": "node server.js",
     "server": "nodemon server.js"
   },
