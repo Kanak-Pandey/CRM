@@ -1,20 +1,25 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { Pool } from "@neondatabase/serverless";
+// server/configs/db.js
+import 'dotenv/config' // ← Must be first
 
-// ✅ ALWAYS use env (NOT hardcoded)
-const connectionString = process.env.DATABASE_URL;
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
-if (!connectionString) {
-  throw new Error("❌ DATABASE_URL is missing in environment variables");
+import { PrismaClient } from '@prisma/client'
+import { PrismaNeon } from '@prisma/adapter-neon'
+import { neonConfig, Pool } from '@neondatabase/serverless'
+import ws from 'ws'
+
+// Required for local dev (not needed on Vercel/serverless)
+neonConfig.webSocketConstructor = ws
+
+const globalForPrisma = globalThis
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set!')
 }
 
-const pool = new Pool({
-  connectionString,
-});
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaNeon(pool)
 
-const adapter = new PrismaNeon(pool);
+export const db =
+  globalForPrisma.prisma ||
+  new PrismaClient({ adapter })
 
-export const prisma = new PrismaClient({
-  adapter,
-});
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db

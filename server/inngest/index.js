@@ -1,21 +1,18 @@
+import 'dotenv/config'
 import { Inngest } from "inngest";
-import { prisma } from "../configs/db.js";
+import { db } from "../configs/db.js"; // ✅ single import, correct name
 
-// Create a client to send and receive events
 export const inngest = new Inngest({ id: "project-management" });
 
 // Sync User Creation
 const syncUserCreation = inngest.createFunction(
-  { 
-    id: "sync-user-from-clerk",
-    // This is the correct way to define the trigger in v4
-    triggers: [{ event: "clerk/user.created" }] 
-  },
+  { id: "sync-user-from-clerk" },
+  { event: "clerk/user.created" },        // ✅ correct v4 syntax
   async ({ event }) => {
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
-    console.log(process.env.DATABASE_URL);
-    await prisma.user.upsert({
+
+    await db.user.upsert({               // ✅ using 'db' not 'prisma'
       where: { id: data.id },
       update: {
         email: data.email_addresses[0]?.email_address,
@@ -32,16 +29,15 @@ const syncUserCreation = inngest.createFunction(
   }
 );
 
+// Sync User Session
 const syncUserSession = inngest.createFunction(
-  { 
-    id: "sync-user-session-clerk", 
-    triggers: [{ event: "clerk/session.created" }] 
-  },
+  { id: "sync-user-session-clerk" },
+  { event: "clerk/session.created" },     // ✅ correct v4 syntax
   async ({ event }) => {
-    const { user } = event.data; // Clerk nests the user object inside 'data' for sessions
+    const { user } = event.data;
     const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
-    await prisma.user.upsert({
+    await db.user.upsert({               // ✅ using 'db'
       where: { id: user.id },
       update: {
         email: user.email_addresses[0]?.email_address,
@@ -60,13 +56,11 @@ const syncUserSession = inngest.createFunction(
 
 // Sync User Deletion
 const syncUserDeletion = inngest.createFunction(
-  { 
-    id: "delete-user-from-clerk",
-    triggers: [{ event: "clerk/user.deleted" }] 
-  },
+  { id: "delete-user-from-clerk" },
+  { event: "clerk/user.deleted" },        // ✅ correct v4 syntax
   async ({ event }) => {
     const { data } = event;
-    await prisma.user.delete({
+    await db.user.delete({               // ✅ using 'db'
       where: { id: data.id },
     });
   }
@@ -74,15 +68,13 @@ const syncUserDeletion = inngest.createFunction(
 
 // Sync User Update
 const syncUserUpdation = inngest.createFunction(
-  { 
-    id: "update-user-from-clerk",
-    triggers: [{ event: "clerk/user.updated" }] 
-  },
+  { id: "update-user-from-clerk" },
+  { event: "clerk/user.updated" },        // ✅ correct v4 syntax
   async ({ event }) => {
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
 
-    await prisma.user.update({
+    await db.user.update({               // ✅ using 'db'
       where: { id: data.id },
       data: {
         email: data.email_addresses[0]?.email_address,
@@ -97,5 +89,5 @@ export const functions = [
   syncUserCreation,
   syncUserDeletion,
   syncUserUpdation,
-  syncUserSession
+  syncUserSession,
 ];
