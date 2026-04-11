@@ -77,6 +77,7 @@ const syncUserUpdation = inngest.createFunction(
     triggers: [{ event: "clerk/user.updated" }]
   },
   async ({ event }) => {
+    console.log('DB URL inside inngest:', process.env.DATABASE_URL?.substring(0, 30))
     const db = createDb()
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();

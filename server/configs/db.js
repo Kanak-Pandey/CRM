@@ -1,3 +1,4 @@
+// server/configs/db.js
 import { PrismaClient } from '@prisma/client'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { Pool } from '@neondatabase/serverless'
@@ -13,5 +14,3 @@ export function createDb() {
   const adapter = new PrismaNeon(pool)
   return new PrismaClient({ adapter })
 }
-
-export const db = createDb()
