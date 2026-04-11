@@ -15,12 +15,14 @@
   "description": "",
   "dependencies": {
     "@clerk/express": "^2.0.6",
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.5.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "dotenv-cli": "^11.0.0",
     "express": "^5.2.1",
-    "inngest": "^4.1.0"
+    "inngest": "^4.1.0",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14",
