@@ -1,15 +1,14 @@
-import 'dotenv/config'
 import { Inngest } from "inngest";
 import { db } from "../configs/db.js";
 
 export const inngest = new Inngest({ id: "project-management" });
 
 const syncUserCreation = inngest.createFunction(
-  { 
+  {
     id: "sync-user-from-clerk",
-    triggers: [{ event: "clerk/user.created" }]  // ✅ triggers inside first arg
+    triggers: [{ event: "clerk/user.created" }]
   },
-  async ({ event }) => {                          // ✅ handler is second arg
+  async ({ event }) => {
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
 
