@@ -2,13 +2,11 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { Pool } from '@neondatabase/serverless'
 
-const globalForPrisma = globalThis
-
-function createPrismaClient() {
+export function createDb() {
   const connectionString = process.env.DATABASE_URL
 
   if (!connectionString) {
-    throw new Error('❌ DATABASE_URL is not set! Check your Vercel environment variables.')
+    throw new Error('❌ DATABASE_URL is not set!')
   }
 
   const pool = new Pool({ connectionString })
@@ -16,8 +14,4 @@ function createPrismaClient() {
   return new PrismaClient({ adapter })
 }
 
-export const db = globalForPrisma.prisma ?? createPrismaClient()
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = db
-}
+export const db = createDb()

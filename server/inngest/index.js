@@ -1,5 +1,5 @@
 import { Inngest } from "inngest";
-import { db } from "../configs/db.js";
+import { createDb } from "../configs/db.js";
 
 export const inngest = new Inngest({ id: "project-management" });
 
@@ -9,6 +9,7 @@ const syncUserCreation = inngest.createFunction(
     triggers: [{ event: "clerk/user.created" }]
   },
   async ({ event }) => {
+    const db = createDb()
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
 
@@ -35,6 +36,7 @@ const syncUserSession = inngest.createFunction(
     triggers: [{ event: "clerk/session.created" }]
   },
   async ({ event }) => {
+    const db = createDb()
     const { user } = event.data;
     const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
@@ -61,6 +63,7 @@ const syncUserDeletion = inngest.createFunction(
     triggers: [{ event: "clerk/user.deleted" }]
   },
   async ({ event }) => {
+    const db = createDb()
     const { data } = event;
     await db.user.delete({
       where: { id: data.id },
@@ -74,6 +77,7 @@ const syncUserUpdation = inngest.createFunction(
     triggers: [{ event: "clerk/user.updated" }]
   },
   async ({ event }) => {
+    const db = createDb()
     const { data } = event;
     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
 
