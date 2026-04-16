@@ -12,7 +12,7 @@ export const fetchworkspaces= createAsyncThunk('workspace/fetchworkspaces',async
             
         } catch (error) {
             console.log(error?.response?.data?.message || error.message)
-            return []
+            return [];
         }
     }
 )
