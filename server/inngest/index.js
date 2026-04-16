@@ -1,7 +1,7 @@
 import { Inngest } from "inngest";
 import { db } from "../configs/db.js"; // back to simple import
 import sendEmail from "../configs/nodemailer.js";
-import { assign } from "nodemailer/lib/shared/index.js";
+
 
 export const inngest = new Inngest({ id: "project-management" });
 
@@ -114,9 +114,12 @@ const syncWorkspaceMemberCreation = inngest.createFunction(
 )
 
 //inngest function to send email on task creation
+// ✅ Correct — 2 arguments, triggers inside first object
 const sendTaskAssignmentEmail = inngest.createFunction(
-  { id: "send-task-assignment-mail" },
-  { event: "app/task.assigned" },
+  { 
+    id: "send-task-assignment-mail",
+    triggers: [{ event: "app/task.assigned" }]  // ← move trigger here
+  },
   async ({ event, step }) => {
     const { taskId, origin } = event.data;
 
@@ -129,7 +132,7 @@ const sendTaskAssignmentEmail = inngest.createFunction(
       to: task.assignee.email,
       subject: `New task assignment in ${task.project.name}`,
       body: `Hi ${task.assignee.name}, you have been assigned: ${task.title}. 
-Due: ${new Date(task.due_date).toLocaleDateString()}
+Due: ${new Date(task.due_date).toLocaleDateString()} 
 <a href="${origin}">View Task</a>`
     });
 
@@ -150,25 +153,20 @@ Due: ${new Date(task.due_date).toLocaleDateString()}
             subject: `Reminder for ${updatedTask.project.name}`,
             body: `<div style="max-width:600px;">
               <h2>Hi ${updatedTask.assignee.name},</h2>
-              <p style="font-size:16px;">You have a task due in ${updatedTask.project.name}</p>
-              <p style="font-size:18px; font-weight:bold; color:#007bff;">${updatedTask.title}</p>
-              <div style="border:1px solid #ddd; padding:12px 16px; border-radius:6px; margin-bottom:30px;">
-                <p style="margin:6px 0;"><strong>Description:</strong> ${updatedTask.description}</p>
-                <p style="margin:6px 0;"><strong>Due Date:</strong> ${new Date(updatedTask.due_date).toLocaleDateString()}</p>
-              </div>
-              <a href="${origin}" style="background-color:#007bff; padding:12px 24px; border-radius:5px; color:#fff; font-weight:600; font-size:16px; text-decoration:none;">
+              <p>You have a task due in ${updatedTask.project.name}</p>
+              <p style="font-weight:bold; color:#007bff;">${updatedTask.title}</p>
+              <p><strong>Description:</strong> ${updatedTask.description}</p>
+              <p><strong>Due Date:</strong> ${new Date(updatedTask.due_date).toLocaleDateString()}</p>
+              <a href="${origin}" style="background:#007bff; padding:12px 24px; border-radius:5px; color:#fff; text-decoration:none;">
                 View Task
               </a>
-              <p style="margin-top:20px; font-size:14px; color:#6c757d;">
-                Please make sure to review and complete it before the due date.
-              </p>
             </div>`
           });
         }
       });
     }
   }
-)
+);
 
 export const functions = [
   syncUserCreation, 
