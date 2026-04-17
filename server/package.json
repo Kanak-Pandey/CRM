@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "prisma generate",
-    "postinstall": "prisma generate",
-    "start": "node server.js",
-    "server": "nodemon server.js"
+  "postinstall": "prisma generate",
+  "start": "node --env-file=.env server.js",
+  "dev": "nodemon --env-file=.env server.js"
   },
   "keywords": [],
   "author": "",
