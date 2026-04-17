@@ -75,7 +75,8 @@ const syncWorkspaceCreation = inngest.createFunction(
 )
 
 const syncWorkspaceUpdation = inngest.createFunction(
-  { id: 'update-workspace-from-clerk', triggers: [{ event: 'clerk/organization.updated' }] },
+  { id: 'update-workspace-from-clerk',
+    triggers: [{ event: 'clerk/organization.updated' }] },
   async ({ event }) => {
     const { data } = event;
     await db.workspace.update({

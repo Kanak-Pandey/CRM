@@ -3,7 +3,7 @@ import { db } from "../configs/db.js";
 //get all workspace for user
 export const getUserWorkspaces = async(req,res)=>{
     try{
-        const {userId}=req.auth();
+        const {userId}=await req.auth();
         const workspaces=await db.workspace.findMany({
             where:{
                 members: {some: {userId: userId}}

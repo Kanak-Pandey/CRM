@@ -5,55 +5,52 @@ import { Outlet } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loadTheme } from '../features/themeSlice'
 import { Loader2Icon } from 'lucide-react'
-import { useUser, SignIn, useAuth, CreateOrganization, useOrganization } from '@clerk/react'
-import { fetchworkspaces } from '../features/workspaceSlice.js'
+import { useUser, SignIn, useAuth } from '@clerk/react'
+import { fetchworkspaces } from '../features/workspaceSlice'
 
 const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const { loading, workspaces } = useSelector((state) => state.workspace)
+    const { loading, workspaces, error } = useSelector((state) => state.workspace)
     const dispatch = useDispatch()
     const { user, isLoaded } = useUser()
     const { getToken } = useAuth()
-    const { organization } = useOrganization() // ← detect org changes
 
     useEffect(() => {
         dispatch(loadTheme())
     }, [])
 
-    // Refetch workspaces whenever user or organization changes
     useEffect(() => {
         if (isLoaded && user) {
             dispatch(fetchworkspaces({ getToken }))
         }
-    }, [user?.id, isLoaded, organization?.id]) // ← organization added as dependency
+    }, [user, isLoaded])
 
-    if (!isLoaded) return (
+    if (!isLoaded || loading) return (
         <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
             <Loader2Icon className="size-7 text-blue-500 animate-spin" />
         </div>
     )
 
-    if (!user) {
-        return (
-            <div className='flex justify-center items-center h-screen bg-white dark:bg-zinc-950'>
-                <SignIn />
-            </div>
-        )
-    }
-
-    if (loading) return (
-        <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
-            <Loader2Icon className="size-7 text-blue-500 animate-spin" />
+    if (!user) return (
+        <div className='flex justify-center items-center h-screen bg-white dark:bg-zinc-950'>
+            <SignIn />
         </div>
     )
 
-    if (user && workspaces.length == 0) {
-        return (
-            <div className='min-h-screen flex justify-center items-center'>
-                <CreateOrganization />
-            </div>
-        )
-    }
+    // ✅ Show a proper error state instead of silently showing CreateOrganization
+    if (error) return (
+        <div className='flex justify-center items-center h-screen bg-white dark:bg-zinc-950'>
+            <p className="text-red-500">Failed to load workspaces: {error}</p>
+        </div>
+    )
+
+    // ✅ Only show this if fetch succeeded but truly no workspaces exist
+    if (!loading && workspaces.length === 0) return (
+        <div className='min-h-screen flex flex-col justify-center items-center gap-4'>
+            <p className="text-gray-500">You have no workspaces yet.</p>
+            {/* Replace with YOUR own create-workspace UI, not Clerk's org form */}
+        </div>
+    )
 
     return (
         <div className="flex bg-white dark:bg-zinc-950 text-gray-900 dark:text-slate-100">
