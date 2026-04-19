@@ -20,7 +20,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use(clerkMiddleware()); // ← back to simple, no need to pass keys manually
+app.use(clerkMiddleware({
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    secretKey: process.env.CLERK_SECRET_KEY,
+}));
 
 app.get('/', (req, res) => res.send('Server is Live!'));
 
