@@ -11,8 +11,15 @@ import commentsRouter from './routes/commentsRoute.js';
 
 const app = express();
 
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://crm-front-roan-six.vercel.app',
+    ],
+    credentials: true
+}));
 app.use(express.json());
-app.use(cors());
+
 app.use(clerkMiddleware()); // ← back to simple, no need to pass keys manually
 
 app.get('/', (req, res) => res.send('Server is Live!'));
