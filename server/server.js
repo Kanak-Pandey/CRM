@@ -13,7 +13,6 @@ const app = express();
 
 app.use(cors({
     origin: [
-        'http://localhost:5173',
         'https://crm-front-roan-six.vercel.app',
     ],
     credentials: true
