@@ -3,19 +3,17 @@ import { dummyWorkspaces } from "../assets/assets";
 import api from "../configs/api.js";
 
 
-export const fetchworkspaces= createAsyncThunk('workspace/fetchworkspaces',async ({getToken},{ rejectWithValue })=>{
-        try {
-            const {data}=await api.get('/api/workspaces',{headers:{
-                Authorization:`Bearer ${await getToken()}`
-            }})
-            return data.workspaces || []
-            
-        } catch (error) {
-            console.log(error?.response?.data?.message || error.message)
-            return [];
-        }
+export const fetchworkspaces = createAsyncThunk('workspace/fetchworkspaces', async ({ getToken }, { dispatch }) => {
+    try {
+        const { data } = await api.get('/api/workspaces', {
+            headers: { Authorization: `Bearer ${await getToken()}` }
+        })
+        return data.workspaces || []
+    } catch (error) {
+        console.log(error?.response?.data?.message || error.message)
+        return []
     }
-)
+})
 const initialState = {
     workspaces: [],
     currentWorkspace: null,

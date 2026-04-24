@@ -5,25 +5,37 @@ import { Outlet } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loadTheme } from '../features/themeSlice'
 import { Loader2Icon } from 'lucide-react'
-import { useUser, SignIn, useAuth } from '@clerk/react'
+import { useUser, SignIn, useAuth, useOrganization, CreateOrganization } from '@clerk/react'
 import { fetchworkspaces } from '../features/workspaceSlice'
-import CreateWorkspaceForm from '../components/CreateWorkspaceForm'
-const Layout = () => { 
+
+const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const { loading, workspaces, error } = useSelector((state) => state.workspace)
+    const { loading, workspaces } = useSelector((state) => state.workspace)
     const dispatch = useDispatch()
     const { user, isLoaded } = useUser()
     const { getToken } = useAuth()
+    const { organization } = useOrganization()
 
     useEffect(() => {
         dispatch(loadTheme())
     }, [])
 
+    // Initial fetch
     useEffect(() => {
         if (isLoaded && user) {
             dispatch(fetchworkspaces({ getToken }))
         }
-    }, [isLoaded,user?.id])
+    }, [isLoaded, user?.id, organization?.id])
+
+    // Poll every 2s if user has org but workspace not in DB yet (Inngest delay)
+    useEffect(() => {
+        if (isLoaded && user && organization && workspaces.length === 0 && !loading) {
+            const interval = setInterval(() => {
+                dispatch(fetchworkspaces({ getToken }))
+            }, 2000)
+            return () => clearInterval(interval)
+        }
+    }, [isLoaded, user?.id, organization?.id, workspaces.length, loading])
 
     if (!isLoaded || loading) return (
         <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
@@ -37,21 +49,14 @@ const Layout = () => {
         </div>
     )
 
-    // ✅ Show a proper error state instead of silently showing CreateOrganization
-    if (error) return (
-        <div className='flex justify-center items-center h-screen bg-white dark:bg-zinc-950'>
-            <p className="text-red-500">Failed to load workspaces: {error}</p>
-        </div>
-    )
-
     if (!loading && workspaces.length === 0) return (
-    <div className='min-h-screen flex flex-col justify-center items-center gap-4 bg-white dark:bg-zinc-950'>
-        <div className='text-center'>
-            <h2 className='text-2xl font-bold text-gray-800 dark:text-white mb-2'>Welcome! 👋</h2>
-            <p className='text-gray-500 mb-6'>Create your first workspace to get started.</p>
+        <div className='min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-zinc-950'>
+            <div className='text-center'>
+                <h2 className='text-2xl font-bold text-gray-800 dark:text-white mb-2'>Welcome! 👋</h2>
+                <p className='text-gray-500 dark:text-gray-400'>Create your first workspace to get started.</p>
+            </div>
+            <CreateOrganization afterCreateOrganizationUrl="/" />
         </div>
-        <CreateWorkspaceForm getToken={getToken} />
-    </div>
     )
 
     return (
