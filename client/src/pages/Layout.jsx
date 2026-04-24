@@ -7,8 +7,8 @@ import { loadTheme } from '../features/themeSlice'
 import { Loader2Icon } from 'lucide-react'
 import { useUser, SignIn, useAuth } from '@clerk/react'
 import { fetchworkspaces } from '../features/workspaceSlice'
-
-const Layout = () => {
+import {CreateWorkspaceForm} from '../components/CreateWorkspaceForm'
+const Layout = () => { 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const { loading, workspaces, error } = useSelector((state) => state.workspace)
     const dispatch = useDispatch()
