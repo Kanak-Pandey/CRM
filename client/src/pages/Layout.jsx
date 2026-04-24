@@ -44,12 +44,14 @@ const Layout = () => {
         </div>
     )
 
-    // ✅ Only show this if fetch succeeded but truly no workspaces exist
     if (!loading && workspaces.length === 0) return (
-        <div className='min-h-screen flex flex-col justify-center items-center gap-4'>
-            <p className="text-gray-500">You have no workspaces yet.</p>
-            {/* Replace with YOUR own create-workspace UI, not Clerk's org form */}
+    <div className='min-h-screen flex flex-col justify-center items-center gap-4 bg-white dark:bg-zinc-950'>
+        <div className='text-center'>
+            <h2 className='text-2xl font-bold text-gray-800 dark:text-white mb-2'>Welcome! 👋</h2>
+            <p className='text-gray-500 mb-6'>Create your first workspace to get started.</p>
         </div>
+        <CreateWorkspaceForm getToken={getToken} />
+    </div>
     )
 
     return (

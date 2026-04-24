@@ -1,5 +1,34 @@
 import { db } from "../configs/db.js";
 
+export const createWorkspace = async (req, res) => {
+    try {
+        const { userId } = await req.auth()
+        const { name } = req.body
+        const slug = name.toLowerCase().replace(/\s+/g, '-')
+
+        const workspace = await db.workspace.create({
+            data: {
+                id: `ws_${Date.now()}`,
+                name,
+                slug,
+                ownerId: userId,
+                image_url: '',
+                members: {
+                    create: {
+                        userId,
+                        role: 'ADMIN'
+                    }
+                }
+            },
+            include: { members: { include: { user: true } }, projects: true, owner: true }
+        })
+
+        res.json({ workspace })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: error.message })
+    }
+}
 //get all workspace for user
 export const getUserWorkspaces = async(req,res)=>{
     try{

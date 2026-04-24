@@ -6,7 +6,7 @@
   "scripts": {
     "build": "prisma generate",
   "postinstall": "prisma generate",
-  "start": "node --env-file=.env server.js",
+  "start": "node server.js",
   "dev": "nodemon --env-file=.env server.js"
   },
   "keywords": [],
